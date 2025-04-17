@@ -35,64 +35,74 @@ contextBridge.exposeInMainWorld("hookBridge", {
 
 let autoChangeSceneTimer = null;
 
+// TODO: move all obs controll code in hear to also make it nested :D
+async function handleStateChange(state) {
+  if(!await storeGet('obsToggle', false)) {
+    console.log('OBS toggle is off, not applying scene.');
+    return;
+  }
+
+  var applyScene = false;
+  var targetScene = '';
+  var nextState = '';
+  var targetMaxTime = 0;
+
+  if(isValidString(state)) {
+    switch(state){
+      case "staging" :
+        if(await storeGet('stagingToggle', false)) {
+          applyScene = true;
+          targetScene = await storeGet('stagingScene', '');
+          targetMaxTime = await storeGet('stagingMaxTime', 1);
+          nextState = 'running';
+        }
+        break;
+      case "running" :
+        if(await storeGet('runningToggle', false)) {
+          applyScene = true;
+          targetScene = await storeGet('runningScene', '');
+        }
+        break;
+      case "complete" :
+        if(await storeGet('completeToggle', false)) {
+          applyScene = true;
+          targetScene = await storeGet('completeScene', '');
+          targetMaxTime = await storeGet('completeMaxTime', 1);
+          nextState = 'staging';
+        }
+        break;
+    }
+  }
+
+  if(applyScene){
+    console.log('Applying scene:', targetScene);
+
+    if(autoChangeSceneTimer) {
+      console.log('Clearing previous timer');
+      clearTimeout(autoChangeSceneTimer);
+      autoChangeSceneTimer = null;
+    }
+
+    obs.call('SetCurrentProgramScene', {
+      sceneName: targetScene
+    });
+  }
+
+  if(targetMaxTime > 0 && isValidString(nextState)) {
+    autoChangeSceneTimer = setTimeout(async () => {
+      console.log('Applying Next State:', nextScene);
+      autoChangeSceneTimer = null;
+      await handleStateChange();
+    }, targetMaxTime * 1000);
+  }
+}
+
 ipcRenderer.on('liveTimeDataProcess', async (event, message) => {
     if(message.type == 'raceData') {
       console.log('raceData');
       state = message.data.split('|')[2];
       console.log('State:', state);
-
-      if(!await storeGet('obsToggle', false)) {
-        console.log('OBS toggle is off, not applying scene.');
-        return;
-      }
-
-      var applyScene = false;
-      var targetScene = '';
-      var nextScene = '';
-      var targetMaxTime = 0;
-
-      if(isValidString(state)) {
-        switch(state){
-          case "staging" :
-            if(await storeGet('stagingToggle', false)) {
-              applyScene = true;
-              targetScene = await storeGet('stagingScene', '');
-              targetMaxTime = await storeGet('stagingMaxTime', 1);
-              nextScene = await storeGet('runningScene', '');
-            }
-            break;
-          case "running" :
-            if(await storeGet('runningToggle', false)) {
-              applyScene = true;
-              targetScene = await storeGet('runningScene', '');
-            }
-            break;
-          case "complete" :
-            if(await storeGet('completeToggle', false)) {
-              applyScene = true;
-              targetScene = await storeGet('completeScene', '');
-              targetMaxTime = await storeGet('completeMaxTime', 1);
-              nextScene = await storeGet('stagingScene', '');
-            }
-            break;
-        }
-      }
-
-      if(applyScene){
-        console.log('Applying scene:', targetScene);
-        obs.call('SetCurrentProgramScene', {
-          sceneName: targetScene
-        });
-      }
-
-      if(targetMaxTime > 0 && isValidString(nextScene)) {
-        autoChangeSceneTimer = setTimeout(() => {
-          console.log('Applying Next Scene:', nextScene);
-          obs.call('SetCurrentProgramScene', {
-            sceneName: nextScene
-          });
-        }, targetMaxTime * 1000);
-      }
+      await handleStateChange(state);
     }
   });
 

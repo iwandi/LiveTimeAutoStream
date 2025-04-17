@@ -1,5 +1,6 @@
 const scoringFrame = document.getElementById('scoringFrame');
 const inputEventId = document.getElementById('eventId');
+const lastSceneSet = document.getElementById('lastSceneSet');
 const obsToggle = document.getElementById('obsToggle');
 const obsUri = document.getElementById('obsUri');
 const obsPassword = document.getElementById('obsPassword');
@@ -141,6 +142,10 @@ window.addEventListener('message', (event) => {
 
   if (event.data.type === 'stopCountDown') {
     stopCountDown();
+  }
+
+  if (event.data.type === 'lastSceneSet') {
+    lastSceneSet.textContent = event.data.sceneName;
   }
 });
 

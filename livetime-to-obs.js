@@ -12,6 +12,10 @@ function stopCountDown() {
   window.postMessage({ type: 'stopCountDown' });
 }
 
+function lastSceneSet(sceneName) {
+  window.postMessage({ type: 'lastSceneSet', sceneName: sceneName });
+}
+
 let autoChangeSceneTimer = null;
 
 async function handleStateChange(state) {
@@ -64,6 +68,7 @@ async function handleStateChange(state) {
     obs.call('SetCurrentProgramScene', {
       sceneName: targetScene
     });
+    lastSceneSet(targetScene);
   }
 
   if(targetMaxTime > 0 && isValidString(nextState)) {

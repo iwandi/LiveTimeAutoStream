@@ -35,7 +35,6 @@ contextBridge.exposeInMainWorld("hookBridge", {
 
 let autoChangeSceneTimer = null;
 
-// TODO: move all obs controll code in hear to also make it nested :D
 async function handleStateChange(state) {
   if(!await storeGet('obsToggle', false)) {
     console.log('OBS toggle is off, not applying scene.');
@@ -75,24 +74,24 @@ async function handleStateChange(state) {
   }
 
   if(applyScene){
-    console.log('Applying scene:', targetScene);
-
     if(autoChangeSceneTimer) {
       console.log('Clearing previous timer');
       clearTimeout(autoChangeSceneTimer);
       autoChangeSceneTimer = null;
     }
 
+    console.log('Applying scene:', targetScene);
     obs.call('SetCurrentProgramScene', {
       sceneName: targetScene
     });
   }
 
   if(targetMaxTime > 0 && isValidString(nextState)) {
+    console.log('Setup Auto Change State Next State:', nextState, targetMaxTime);
     autoChangeSceneTimer = setTimeout(async () => {
-      console.log('Applying Next State:', nextScene);
+      console.log('Applying Next State:', nextState);
       autoChangeSceneTimer = null;
-      await handleStateChange();
+      await handleStateChange(nextState);
     }, targetMaxTime * 1000);
   }
 }

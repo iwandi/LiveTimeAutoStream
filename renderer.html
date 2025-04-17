@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>LiveFPV Viewer</title>
+    <style>
+      /* Ensure body takes up the entire viewport */
+      body {
+        font-family: sans-serif;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      /* Controls container styling */
+      #controls {
+        padding: 10px;
+        background: #eee;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: flex-start;
+      }
+
+      #controls { padding: 10px; background: #eee; display: flex; gap: 10px; }
+      webview {
+        flex: 1;  /* Takes up all available space left */
+        width: 100%;
+        height: 100%;
+      }
+
+      
+    .toggle, .button{
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .toggleDisabled {
+      background-color: red;
+      color: white;
+    }
+    .toggleEnabled {
+      background-color: green;
+      color: white;
+    }
+    </style>
+  </head>
+  <body>
+    <div id="controls">
+      <div>
+        <label>Event ID: </label>
+        <input id="eventId" type="text" value="bmr" /><br />
+        <button class="button" onclick="loadEvent()">Load</button>
+      </div>
+      <div>
+        <label>Control OBS</label><br />
+        <button id="obsToggle" class="toggle" onclick="toggleState('obs')">Dissabled</button><br />
+      </div>
+      <div>
+        <label>Staging</label>
+        <button id="stagingToggle" class="toggle" onclick="toggleState('staging')">Dissabled</button><br />
+        <label>OBS scene</label><br />
+        <input id="stagingScene" type="text" value="bmr" /><br />
+        <label>max Time (in sec)</label><br />
+        <input id="stagingMaxTime" type="number" value="1" /><br />
+      </div>
+      <div>
+        <label>Running</label>
+        <button id="runningToggle" class="toggle" onclick="toggleState('running')">Dissabled</button><br />
+        <label>OBS scene</label><br />
+        <input id="runningScene" type="text" value="bmr" /><br />
+      </div>
+      <div>
+        <label>Complete</label>
+        <button id="completeToggle" class="toggle" onclick="toggleState('complete')">Dissabled</button><br />
+        <label>OBS scene</label><br />
+        <input id="completeScene" type="text" value="bmr" /><br />
+        <label>max Time (in sec)</label><br />
+        <input id="completeMaxTime" type="number" value="1" /><br />
+      </div>
+    </div>
+    <webview  id="scoringFrame" src="about:blank" preload="./inject-preload.js" nodeintegration="true" nodeintegrationinsubframes="true" webpreferences="nodeIntegration=false; contextIsolation=true;sandbox=false;"></webview>
+
+    <script src="renderer.js"></script>
+  </body>
+</html>

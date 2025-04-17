@@ -56,28 +56,32 @@
       <div>
         <label>Control OBS</label><br />
         <button id="obsToggle" class="toggle" onclick="toggleState('obs')">Dissabled</button><br />
+        <label>OBS uri</label><br />
+        <input id="obsUri" type="text" value="ws://localhost:4455" /><br />
+        <label>OBS password</label><br />
+        <input id="obsPassword" type="text" value="" /><br />
       </div>
       <div>
         <label>Staging</label>
         <button id="stagingToggle" class="toggle" onclick="toggleState('staging')">Dissabled</button><br />
         <label>OBS scene</label><br />
-        <input id="stagingScene" type="text" value="bmr" /><br />
+        <input id="stagingScene" type="text" value="Pre-Race" /><br />
         <label>max Time (in sec)</label><br />
-        <input id="stagingMaxTime" type="number" value="1" /><br />
+        <input id="stagingMaxTime" type="number" value="30" /><br />
       </div>
       <div>
         <label>Running</label>
         <button id="runningToggle" class="toggle" onclick="toggleState('running')">Dissabled</button><br />
         <label>OBS scene</label><br />
-        <input id="runningScene" type="text" value="bmr" /><br />
+        <input id="runningScene" type="text" value="Race" /><br />
       </div>
       <div>
         <label>Complete</label>
         <button id="completeToggle" class="toggle" onclick="toggleState('complete')">Dissabled</button><br />
         <label>OBS scene</label><br />
-        <input id="completeScene" type="text" value="bmr" /><br />
+        <input id="completeScene" type="text" value="Post-Race" /><br />
         <label>max Time (in sec)</label><br />
-        <input id="completeMaxTime" type="number" value="1" /><br />
+        <input id="completeMaxTime" type="number" value="30" /><br />
       </div>
     </div>
     <webview  id="scoringFrame" src="about:blank" preload="./inject-preload.js" nodeintegration="true" nodeintegrationinsubframes="true" webpreferences="nodeIntegration=false; contextIsolation=true;sandbox=false;"></webview>

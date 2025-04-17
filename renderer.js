@@ -1,6 +1,8 @@
 var scoringFrame = document.getElementById('scoringFrame');
 var inputEventId = document.getElementById('eventId');
 var obsToggle = document.getElementById('obsToggle');
+var obsUri = document.getElementById('obsUri');
+var obsPassword = document.getElementById('obsPassword');
 var stagingToggle = document.getElementById('stagingToggle');
 var stagingScene = document.getElementById('stagingScene');
 var stagingMaxTime = document.getElementById('stagingMaxTime');
@@ -27,6 +29,8 @@ function toggleButton(button){
 function saveConfig(){
   window.hookBridge.storeSet('eventId', inputEventId.value.trim());
   window.hookBridge.storeSet('obsToggle', getToggleButton(obsToggle));
+  window.hookBridge.storeSet('obsUri', obsUri.value.trim());
+  window.hookBridge.storeSet('obsPassword', obsPassword.value.trim());
   window.hookBridge.storeSet('stagingToggle', getToggleButton(stagingToggle));
   window.hookBridge.storeSet('stagingScene', stagingScene.value.trim());
   window.hookBridge.storeSet('stagingMaxTime', stagingMaxTime.value.trim());
@@ -40,17 +44,21 @@ function saveConfig(){
 async function loadConfig() {
   inputEventId.value = await window.hookBridge.storeGet('eventId', '');
   setToggleButton(obsToggle, await window.hookBridge.storeGet('obsToggle', false));
+  obsUri.value = await window.hookBridge.storeGet('obsUri', 'ws://localhost:4455');
+  obsPassword.value = await window.hookBridge.storeGet('obsPassword', '');
   setToggleButton(stagingToggle, await window.hookBridge.storeGet('stagingToggle', false));
   stagingScene.value = await window.hookBridge.storeGet('stagingScene', 'Pre-Race');
-  stagingMaxTime.value = await window.hookBridge.storeGet('stagingMaxTime', '1');
+  stagingMaxTime.value = await window.hookBridge.storeGet('stagingMaxTime', '30');
   setToggleButton(runningToggle, await window.hookBridge.storeGet('runningToggle', false));
   runningScene.value = await window.hookBridge.storeGet('runningScene', 'Race');
   setToggleButton(completeToggle, await window.hookBridge.storeGet('completeToggle', false));
   completeScene.value = await window.hookBridge.storeGet('completeScene', 'Post-Race');
-  completeMaxTime.value = await window.hookBridge.storeGet('completeMaxTime', '1');
+  completeMaxTime.value = await window.hookBridge.storeGet('completeMaxTime', '30');
 }
 
-function loadEvent() {
+async function loadEvent() {  
+  await window.obsControl.setOBSConnectionState(true);
+  
   const id = inputEventId.value.trim();
   const url = `https://${id}.livefpv.com/live/scoring/`;
 
@@ -62,7 +70,8 @@ function loadEvent() {
 function toggleState(state) {
   switch (state) {
     case "obs":
-      toggleButton(obsToggle);
+      toggleButton(obsToggle);      
+      setOBSConnectionState(state);
       break;
     case "staging":
       toggleButton(stagingToggle);

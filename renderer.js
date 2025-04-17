@@ -1,16 +1,18 @@
-var scoringFrame = document.getElementById('scoringFrame');
-var inputEventId = document.getElementById('eventId');
-var obsToggle = document.getElementById('obsToggle');
-var obsUri = document.getElementById('obsUri');
-var obsPassword = document.getElementById('obsPassword');
-var stagingToggle = document.getElementById('stagingToggle');
-var stagingScene = document.getElementById('stagingScene');
-var stagingMaxTime = document.getElementById('stagingMaxTime');
-var runningToggle = document.getElementById('runningToggle');
-var runningScene = document.getElementById('runningScene');
-var completeToggle = document.getElementById('completeToggle');
-var completeScene = document.getElementById('completeScene');
-var completeMaxTime = document.getElementById('completeMaxTime');
+const scoringFrame = document.getElementById('scoringFrame');
+const inputEventId = document.getElementById('eventId');
+const obsToggle = document.getElementById('obsToggle');
+const obsUri = document.getElementById('obsUri');
+const obsPassword = document.getElementById('obsPassword');
+const stagingToggle = document.getElementById('stagingToggle');
+const stagingScene = document.getElementById('stagingScene');
+const stagingMaxTime = document.getElementById('stagingMaxTime');
+const runningToggle = document.getElementById('runningToggle');
+const runningScene = document.getElementById('runningScene');
+const completeToggle = document.getElementById('completeToggle');
+const completeScene = document.getElementById('completeScene');
+const completeMaxTime = document.getElementById('completeMaxTime');
+const countdownNextState = document.getElementById('countdownNextState');
+const nextState = document.getElementById('nextState');
 
 function getToggleButton(button) {
   return button.innerHTML == 'Enabled' ? true : false
@@ -58,7 +60,7 @@ async function loadConfig() {
 
 async function loadEvent() {  
   await window.obsControl.setOBSConnectionState(true);
-  
+
   const id = inputEventId.value.trim();
   const url = `https://${id}.livefpv.com/live/scoring/`;
 
@@ -86,15 +88,60 @@ function toggleState(state) {
   saveConfig();
 }
 
+let countdownTimer;
+
+function startCountDown(nextStateName, delay) {
+  if (countdownTimer) {
+    clearInterval(countdownTimer);
+  }
+
+  nextState.textContent = nextStateName;
+  let remaining = delay;
+
+  function update() {
+    const minutes = Math.floor(remaining / 60).toString().padStart(2, '0');
+    const seconds = (remaining % 60).toString().padStart(2, '0');
+    countdownNextState.textContent = `${minutes}:${seconds}`;
+
+    if (remaining <= 0) {
+      clearInterval(countdownTimer);
+    } else {
+      remaining--;
+    }
+  }
+  countdownTimer = setInterval(update, 1000);
+}
+
+function stopCountDown() {  
+  if(countdownTimer) 
+  {
+    clearInterval(countdownTimer);
+    countdownTimer = null;
+  }
+  countdownNextState.textContent = "00:00";
+  nextState.textContent = "---";
+}
+
 scoringFrame.addEventListener("dom-ready", () => {
   //scoringFrame.openDevTools();
 
   loadConfig();
+  stopCountDown();
 
   const hookScript = window.hookBridge.getInjectedCode();
   scoringFrame.executeJavaScript(hookScript).then(() => {
     console.log("Injected hook script");
   });
+});
+
+window.addEventListener('message', (event) => {
+  if (event.data.type === 'startCountDown') {
+    startCountDown(event.data.nextState, event.data.seconds);
+  }
+
+  if (event.data.type === 'stopCountDown') {
+    stopCountDown();
+  }
 });
 
 console.log("Renderer script executed");

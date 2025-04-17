@@ -4,6 +4,14 @@ const { isValidString } = require('./utils.js');
 
 const { ipcRenderer } = require('electron');
 
+function startCountDown(nextState, delay) {
+  window.postMessage({ type: 'startCountDown', nextState: nextState, seconds : delay });
+}
+
+function stopCountDown() { 
+  window.postMessage({ type: 'stopCountDown' });
+}
+
 let autoChangeSceneTimer = null;
 
 async function handleStateChange(state) {
@@ -48,6 +56,7 @@ async function handleStateChange(state) {
     if(autoChangeSceneTimer) {
       console.log('Clearing previous timer');
       clearTimeout(autoChangeSceneTimer);
+      stopCountDown();
       autoChangeSceneTimer = null;
     }
 
@@ -64,6 +73,7 @@ async function handleStateChange(state) {
       autoChangeSceneTimer = null;
       await handleStateChange(nextState);
     }, targetMaxTime * 1000);
+    startCountDown(nextState, targetMaxTime);
   }
 }
 

@@ -78,7 +78,7 @@ function toggleState(state) {
 }
 
 scoringFrame.addEventListener("dom-ready", () => {
-  scoringFrame.openDevTools();
+  //scoringFrame.openDevTools();
 
   loadConfig();
 
